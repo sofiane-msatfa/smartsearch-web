@@ -11,10 +11,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth/use-auth";
-import { registrationSchema, RegistrationInput } from "@/api/auth";
+import {
+  registrationSchema,
+  RegistrationInput,
+  isRegistrationError,
+  formatRegistrationError,
+} from "@/api/auth";
 import { useRouter } from "@/hooks/use-router";
 import { useToast } from "@/components/ui/use-toast";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 
 export function RegisterForm() {
   const router = useRouter();
@@ -30,11 +35,15 @@ export function RegisterForm() {
       await signUp(data);
       router.replace("/auth/login");
     } catch (err) {
-      if (err instanceof AxiosError && err.response?.status === 400) {
+      if (
+        isAxiosError(err) &&
+        err.response &&
+        isRegistrationError(err.response)
+      ) {
         return toast({
           title: "Erreur",
-          description: "Nom d'utilisateur déjà utilisé",
-           variant: "destructive"
+          description: formatRegistrationError(err.response.data),
+          variant: "destructive",
         });
       }
 

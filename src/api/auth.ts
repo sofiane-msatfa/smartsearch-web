@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { api } from "./client";
 import { config } from "@/config";
+import { AxiosResponse } from "axios";
 
 // export interface User {
 //   id: number;
@@ -15,6 +16,40 @@ export interface AccessTokenResponse {
   refreshToken: string;
 }
 
+export enum RegistrationErrorType {
+  PasswordRequiresDigit = "PasswordRequiresDigit",
+  PasswordRequiresNonAlphanumeric = "PasswordRequiresNonAlphanumeric",
+  PasswordRequiresUpper = "PasswordRequiresUpper",
+  DuplicateUserName = "DuplicateUserName",
+}
+
+export interface RegistrationError {
+  status: number;
+  title: string;
+  errors: Partial<Record<RegistrationErrorType, string[]>>;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isRegistrationError(
+  response: AxiosResponse
+): response is AxiosResponse<RegistrationError> {
+  return (
+    response?.data.status === 400 &&
+    response.data.title === "One or more validation errors occurred." &&
+    response.data.errors !== undefined
+  );
+}
+
+export function formatRegistrationError(error: RegistrationError): string {
+  console.log(error);
+  if (error.errors.DuplicateUserName) {
+    return "Nom d'utilisateur déjà utilisé";
+  }
+
+  const messages = Object.values(error.errors).flat();
+  return messages.join(", ");
+}
+
 /* ---------------------------------- login --------------------------------- */
 
 export const authenticationSchema = z.object({
@@ -27,11 +62,11 @@ export type AuthenticationInput = z.infer<typeof authenticationSchema>;
 export const authenticate = async (
   data: AuthenticationInput
 ): Promise<AccessTokenResponse> => {
-  const response = await api.post(config.loginUrl, { 
+  const response = await api.post(config.loginUrl, {
     ...data,
     // TODO: implémenter route propre niveau backend
     twoFactorCode: "000000",
-    twoFactorRecoveryCode: "000000"
+    twoFactorRecoveryCode: "000000",
   });
   return response.data;
 };

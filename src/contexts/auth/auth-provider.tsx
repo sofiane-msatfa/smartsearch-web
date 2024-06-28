@@ -2,10 +2,8 @@ import { useCallback, useEffect, useMemo } from "react";
 import { AuthContext, type AuthContextType } from "./auth-context";
 import { setClientAccessToken } from "@/api/client";
 import { useLocalStorage } from "react-use";
-// import { User } from "@/api/auth";
 import {
   authenticate,
-  // getCurrentUser,
   register,
   type AuthenticationInput,
   type RegistrationInput,
@@ -17,7 +15,6 @@ interface AuthProviderProps {
 }
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
-  // const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken, removeAccessToken] = useLocalStorage(
     ACCESS_TOKEN_KEY,
     ""
@@ -33,8 +30,6 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   const initAuth = useCallback(async () => {
     if (isAuthenticated) {
       setClientAccessToken(accessToken);
-      // const user = await getCurrentUser();
-      // setUser(user);
     }
   }, [isAuthenticated, accessToken]);
 
@@ -46,7 +41,6 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
 
   const signUp = useCallback(async (input: RegistrationInput) => {
     await register(input);
-    // setUser(user);
   }, []);
 
   const signIn = useCallback(
