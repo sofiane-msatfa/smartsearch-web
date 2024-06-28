@@ -9,7 +9,7 @@ export function ProjectPage() {
     <div>
       <h1 className="mb-8">Projets</h1>
       <CreateProjectForm />
-      <CodeBlock code={data?.results} loading={isPending} className="mt-8" />
+      <CodeBlock code={data} loading={isPending} className="mt-8" />
     </div>
   );
 }

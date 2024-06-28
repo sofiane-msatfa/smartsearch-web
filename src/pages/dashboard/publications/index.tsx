@@ -9,7 +9,7 @@ export function PublicationPage() {
     <div>
       <h1 className="mb-8">Publications</h1>
       <CreatePublicationForm />
-      <CodeBlock code={data?.results} loading={isPending} className="mt-8" />
+      <CodeBlock code={data} loading={isPending} className="mt-8" />
     </div>
   );
 }

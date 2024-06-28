@@ -39,6 +39,8 @@ import {
   useCreateProject,
   ProjectError,
 } from "@/api/projects";
+import { useGetResearchers } from "@/api/researchers";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const createResearcherDefaultValues = {
   title: "",
@@ -48,6 +50,7 @@ const createResearcherDefaultValues = {
 export function CreateProjectForm() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const getResearchersQuery = useGetResearchers();
   const createProjectMutation = useCreateProject();
 
   const form = useForm<CreateProjectInput>({
@@ -65,11 +68,13 @@ export function CreateProjectForm() {
   };
 
   const onSubmit = form.handleSubmit(async (data) => {
+    console.log({ data });
     try {
       const cleanData = formatDates(data);
       await createProjectMutation.mutateAsync(cleanData);
       onSuccess();
     } catch (error) {
+      console.error(error);
       if (error instanceof AxiosError) {
         const apiErrors = error.response?.data as ProjectError;
         for (const [key, value] of Object.entries(apiErrors)) {
@@ -130,7 +135,7 @@ export function CreateProjectForm() {
 
             <FormField
               control={form.control}
-              name="start_date"
+              name="startDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date de lancement</FormLabel>
@@ -169,7 +174,7 @@ export function CreateProjectForm() {
 
             <FormField
               control={form.control}
-              name="expected_end_date"
+              name="endDate"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date de fin prévue</FormLabel>
@@ -201,6 +206,39 @@ export function CreateProjectForm() {
                       />
                     </PopoverContent>
                   </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="managerId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Chef de projet</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      form.setValue("managerId", Number(value));
+                      field.onChange(value);
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selectionnez le Chef de projet" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {getResearchersQuery.data?.map((manager) => (
+                        <SelectItem
+                          key={manager.id}
+                          value={manager.id.toString()}
+                        >
+                          {manager.name} - {manager.specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

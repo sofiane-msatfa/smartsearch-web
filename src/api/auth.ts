@@ -1,21 +1,24 @@
 import { z } from "zod";
 import { api } from "./client";
+import { config } from "@/config";
 
-export interface User {
-  id: number;
-  username: string;
-  email: string;
-}
+// export interface User {
+//   id: number;
+//   username: string;
+//   email: string;
+// }
 
 export interface AccessTokenResponse {
-  access: string;
-  refresh: string;
+  tokenType: "Bearer";
+  accessToken: string;
+  expiresIn: number;
+  refreshToken: string;
 }
 
 /* ---------------------------------- login --------------------------------- */
 
 export const authenticationSchema = z.object({
-  username: z.string().min(1),
+  email: z.string().email(),
   password: z.string().min(8),
 });
 
@@ -24,7 +27,12 @@ export type AuthenticationInput = z.infer<typeof authenticationSchema>;
 export const authenticate = async (
   data: AuthenticationInput
 ): Promise<AccessTokenResponse> => {
-  const response = await api.post("/auth/jwt/create/", data);
+  const response = await api.post(config.loginUrl, { 
+    ...data,
+    // TODO: implémenter route propre niveau backend
+    twoFactorCode: "000000",
+    twoFactorRecoveryCode: "000000"
+  });
   return response.data;
 };
 
@@ -41,12 +49,12 @@ export const registrationSchema = authenticationSchema
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;
 
-export const register = async (data: RegistrationInput): Promise<User> => {
-  const response = await api.post("/auth/users/", data);
+export const register = async (data: RegistrationInput): Promise<void> => {
+  const response = await api.post(config.registerUrl, data);
   return response.data;
 };
 
-export const getCurrentUser = async (): Promise<User> => {
-  const response = await api.get("/auth/users/me/");
-  return response.data;
-};
+// export const getCurrentUser = async (): Promise<User> => {
+//   const response = await api.get("/auth/users/me/");
+//   return response.data;
+// };

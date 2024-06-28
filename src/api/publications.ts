@@ -1,22 +1,26 @@
 import { z } from "zod";
 import { api } from "./client";
-import { PaginatedResponse, PaginationInput } from "./types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Project } from "./projects";
 
-export interface ProjectPublication {
+export interface Publication {
   id: number;
   title: string;
   summary: string;
-  publication_date: string;
-  associated_project: number;
+  date: string;
+  projectId: number;
+  project: Project;
 }
 
-export interface ProjectPublicationFilter {
+export interface PublicationFilter {
   title?: string;
-  publication_date?: Date;
-  associated_project__title?: string;
+  summary?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  projectId?: number;
 }
 
+// TODO modifier
 export interface CreateProjectPublicationError {
   title?: string[];
   summary?: string[];
@@ -29,8 +33,8 @@ export interface CreateProjectPublicationError {
 export const createPublicationSchema = z.object({
   title: z.string().min(1).max(255),
   summary: z.string(),
-  publication_date: z.coerce.date(),
-  associated_project: z.coerce.number(),
+  date: z.coerce.date(),
+  projectId: z.coerce.number(),
 });
 
 export type CreatePublicationInput = z.infer<typeof createPublicationSchema>;
@@ -55,22 +59,20 @@ export const useCreatePublication = () => {
 /* ---------------------------------- get ---------------------------------- */
 
 const getPublications = async (
-  opts?: ProjectPublicationFilter & PaginationInput
-): Promise<PaginatedResponse<ProjectPublication>> => {
+  opts?: PublicationFilter
+): Promise<Publication[]> => {
   const response = await api.get("/api/publications/", {
     params: opts,
   });
   return response.data;
 };
 
-const getPublication = async (id: number): Promise<ProjectPublication> => {
+const getPublication = async (id: number): Promise<Publication> => {
   const response = await api.get(`/api/publications/${id}/`);
   return response.data;
 };
 
-export const useGetPublications = (
-  opts?: ProjectPublicationFilter & PaginationInput
-) => {
+export const useGetPublications = (opts?: PublicationFilter) => {
   return useQuery({
     queryKey: ["publications", opts],
     queryFn: () => getPublications(opts),

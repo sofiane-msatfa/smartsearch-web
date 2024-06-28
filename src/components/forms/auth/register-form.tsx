@@ -51,12 +51,12 @@ export function RegisterForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormField
           control={form.control}
-          name="username"
+          name="email"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Nom d'utilisateur</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input type="email" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

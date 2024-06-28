@@ -32,7 +32,7 @@ import {
 
 const createResearcherDefaultValues = {
   name: "",
-  speciality: "",
+  specialty: "",
 } satisfies CreateResearcherInput;
 
 export function CreateResearcherForm() {
@@ -65,7 +65,7 @@ export function CreateResearcherForm() {
           type: "manual",
           message: apiErrors.name?.join(", "),
         });
-        form.setError("speciality", {
+        form.setError("specialty", {
           type: "manual",
           message: apiErrors.specialty?.join(", "),
         });
@@ -103,7 +103,7 @@ export function CreateResearcherForm() {
 
             <FormField
               control={form.control}
-              name="speciality"
+              name="specialty"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Spécialité</FormLabel>

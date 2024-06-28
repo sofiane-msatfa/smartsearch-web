@@ -1,27 +1,33 @@
 import { z } from "zod";
 import { api } from "./client";
-import { ProjectPublication } from "./publications";
+import { Publication } from "./publications";
 import { Researcher } from "./researchers";
-import { PaginatedResponse, PaginationInput } from "./types";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export interface Project {
   id: number;
   title: string;
   description: string;
+  startDate: string;
+  endDate: string;
+  managerId: number;
+  manager: Researcher;
   researchers: Researcher[];
-  publications: ProjectPublication[];
-  start_date: string;
-  expected_end_date: string;
+  publications: Publication[];
 }
 
 export interface ProjectFilter {
   title?: string;
-  start_date?: Date;
-  expected_end_date?: Date;
-  researchers__name?: string;
+  description?: string;
+  startDateFrom?: Date;
+  endDateBefore?: Date;
+  managerId?: number;
+  managerName?: string;
+  researcherIds?: number[];
+  PublicationIds?: number[];
 }
 
+// TODO modifier
 export interface ProjectError {
   title?: string[];
   description?: string[];
@@ -33,9 +39,10 @@ export interface ProjectError {
 
 export const createProjectSchema = z.object({
   title: z.string().min(1).max(255),
-  description: z.string(),
-  start_date: z.date(),
-  expected_end_date: z.date(),
+  description: z.string().optional(),
+  startDate: z.coerce.date(),
+  endDate: z.coerce.date(),
+  managerId: z.coerce.number(),
 });
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
@@ -60,8 +67,8 @@ export const useCreateProject = () => {
 /* ---------------------------------- get ---------------------------------- */
 
 const getProjects = async (
-  opts?: ProjectFilter & PaginationInput
-): Promise<PaginatedResponse<Project>> => {
+  opts?: ProjectFilter
+): Promise<Project[]> => {
   const response = await api.get("/api/projects/", {
     params: opts,
   });
@@ -74,7 +81,7 @@ const getProject = async (id: number): Promise<Project> => {
 };
 
 export const useGetProjects = (
-  opts?: ProjectFilter & PaginationInput
+  opts?: ProjectFilter
 ) => {
   return useQuery({
     queryKey: ["projects", opts],

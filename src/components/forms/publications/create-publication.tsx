@@ -139,7 +139,7 @@ export function CreatePublicationForm() {
 
             <FormField
               control={form.control}
-              name="publication_date"
+              name="date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
                   <FormLabel>Date de publication</FormLabel>
@@ -178,13 +178,13 @@ export function CreatePublicationForm() {
 
             <FormField
               control={form.control}
-              name="associated_project"
+              name="projectId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Projet associé</FormLabel>
                   <Select
                     onValueChange={(value) => {
-                      form.setValue("associated_project", Number(value));
+                      form.setValue("projectId", Number(value));
                       field.onChange(value);
                     }}
                   >
@@ -194,7 +194,7 @@ export function CreatePublicationForm() {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {getResearchProjectsQuery.data?.results.map((project) => (
+                      {getResearchProjectsQuery.data?.map((project) => (
                         <SelectItem
                           key={project.id}
                           value={project.id.toString()}

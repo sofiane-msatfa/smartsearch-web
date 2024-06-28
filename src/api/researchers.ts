@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { api } from "./client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { PaginatedResponse, PaginationInput } from "./types";
 import { Project } from "./projects";
 
 export interface Researcher {
@@ -9,8 +8,10 @@ export interface Researcher {
   name: string;
   specialty: string;
   projects: Project[];
+  managerProjects: Project[];
 }
 
+//TODO modifier
 export interface CreateResearcherError {
   name?: string[];
   specialty?: string[];
@@ -20,7 +21,7 @@ export interface CreateResearcherError {
 
 export const createResearcherSchema = z.object({
   name: z.string().min(1).max(255),
-  speciality: z.string().min(1).max(255),
+  specialty: z.string().min(1).max(255),
 });
 
 export type CreateResearcherInput = z.infer<typeof createResearcherSchema>;
@@ -44,12 +45,8 @@ export const useCreateResearcher = () => {
 
 /* ---------------------------------- get ---------------------------------- */
 
-const getResearchers = async (
-  paginationOpts?: PaginationInput
-): Promise<PaginatedResponse<Researcher>> => {
-  const response = await api.get("/api/researchers/", {
-    params: paginationOpts,
-  });
+const getResearchers = async (): Promise<Researcher[]> => {
+  const response = await api.get("/api/researchers/");
   return response.data;
 };
 
@@ -58,10 +55,10 @@ const getResearcher = async (id: number): Promise<Researcher> => {
   return response.data;
 };
 
-export const useGetResearchers = (paginationOpts?: PaginationInput) => {
+export const useGetResearchers = () => {
   return useQuery({
-    queryKey: ["researchers", paginationOpts],
-    queryFn: () => getResearchers(paginationOpts),
+    queryKey: ["researchers"],
+    queryFn: () => getResearchers(),
   });
 };
 

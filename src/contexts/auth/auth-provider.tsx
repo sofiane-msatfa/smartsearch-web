@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { AuthContext, type AuthContextType } from "./auth-context";
 import { setClientAccessToken } from "@/api/client";
 import { useLocalStorage } from "react-use";
-import { User } from "@/api/auth";
+// import { User } from "@/api/auth";
 import {
   authenticate,
-  getCurrentUser,
+  // getCurrentUser,
   register,
   type AuthenticationInput,
   type RegistrationInput,
@@ -17,7 +17,7 @@ interface AuthProviderProps {
 }
 
 export function AuthContextProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken, removeAccessToken] = useLocalStorage(
     ACCESS_TOKEN_KEY,
     ""
@@ -33,8 +33,8 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   const initAuth = useCallback(async () => {
     if (isAuthenticated) {
       setClientAccessToken(accessToken);
-      const user = await getCurrentUser();
-      setUser(user);
+      // const user = await getCurrentUser();
+      // setUser(user);
     }
   }, [isAuthenticated, accessToken]);
 
@@ -45,16 +45,16 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   }, [isAuthenticated, initAuth]);
 
   const signUp = useCallback(async (input: RegistrationInput) => {
-    const user = await register(input);
-    setUser(user);
+    await register(input);
+    // setUser(user);
   }, []);
 
   const signIn = useCallback(
     async (input: AuthenticationInput) => {
       const token = await authenticate(input);
 
-      setAccessToken(token.access);
-      setRefreshToken(token.refresh); // TODO: @SOFIANE passer en cookie secure
+      setAccessToken(token.accessToken);
+      setRefreshToken(token.refreshToken); // TODO: @SOFIANE passer en cookie secure
     },
     [setAccessToken, setRefreshToken]
   );
@@ -67,12 +67,11 @@ export function AuthContextProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = useMemo(
     () => ({
       isAuthenticated,
-      user,
       signUp,
       signIn,
       signOut,
     }),
-    [isAuthenticated, user, signUp, signIn, signOut]
+    [isAuthenticated, signUp, signIn, signOut]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

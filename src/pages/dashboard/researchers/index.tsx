@@ -9,7 +9,7 @@ export function ResearcherPage() {
     <div>
       <h1 className="mb-8">Chercheurs</h1>
       <CreateResearcherForm />
-      <CodeBlock code={data?.results} loading={isPending} className="mt-8" />
+      <CodeBlock code={data} loading={isPending} className="mt-8" />
     </div>
   );
 }
